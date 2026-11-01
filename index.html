@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZONE X</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080a10;color:white;font-family:Arial,sans-serif}
+header{padding:22px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #222b3b}
+.logo{font-size:30px;font-weight:900;letter-spacing:2px}
+.logo span{color:#168cff}
+main{max-width:480px;margin:35px auto;padding:15px}
+.card{background:#111722;border:1px solid #273348;border-radius:18px;padding:25px;margin-bottom:20px}
+h1{font-size:34px;margin-bottom:10px}
+.blue{color:#168cff}
+p{color:#aab3c4;line-height:1.6}
+input{width:100%;padding:15px;margin:9px 0;background:#080b12;color:white;border:1px solid #344057;border-radius:10px}
+button{width:100%;padding:15px;border:0;border-radius:10px;background:#168cff;color:white;font-weight:bold;margin-top:12px;font-size:16px}
+.secondary{background:#222c3d}
+footer{text-align:center;color:#778398;padding:25px}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">ZONE <span>X</span></div>
+<div>✦</div>
+</header>
+
+<main>
+<div class="card">
+<h1>WELCOME TO <span class="blue">ZONE X</span></h1>
+<p>Your world. Your people. Your zone.</p>
+<p>A new place to connect, share your moments and discover your world.</p>
+</div>
+
+<div class="card" id="account">
+<h2>Join the community</h2>
+<p>Create your account or log in to continue.</p>
+<button onclick="signup()">CREATE ACCOUNT</button>
+<button class="secondary" onclick="login()">LOG IN</button>
+</div>
+</main>
+
+<footer>ZONE X © 2026<br>Your world. Your people. Your zone.</footer>
+
+<script>
+function signup(){
+document.getElementById('account').innerHTML=`
+<h2>Create your account</h2>
+<input placeholder="Full name">
+<input placeholder="Username">
+<input placeholder="Nickname">
+<input type="date" aria-label="Date of birth">
+<input placeholder="Email or phone">
+<input type="password" placeholder="Create password">
+<input type="password" placeholder="Confirm password">
+<button onclick="alert('Account registration will be connected to our secure backend.')">CONTINUE</button>
+<button class="secondary" onclick="home()">BACK</button>`;
+}
+function login(){
+document.getElementById('account').innerHTML=`
+<h2>Welcome back</h2>
+<input placeholder="Email or phone">
+<input type="password" placeholder="Password">
+<button onclick="alert('Login will be connected to our secure backend.')">LOG IN</button>
+<button class="secondary" onclick="home()">BACK</button>`;
+}
+function home(){
+document.getElementById('account').innerHTML=`
+<h2>Join the community</h2>
+<p>Create your account or log in to continue.</p>
+<button onclick="signup()">CREATE ACCOUNT</button>
+<button class="secondary" onclick="login()">LOG IN</button>`;
+}
+</script>
+</body>
+</html>
