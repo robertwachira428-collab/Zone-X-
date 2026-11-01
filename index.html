@@ -1,0 +1,282 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZONE X — Your World</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:#070b14;
+  color:#fff;
+  font-family:Arial,sans-serif;
+  min-height:100vh;
+}
+header{
+  padding:22px;
+  border-bottom:1px solid #17243a;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.logo{font-size:25px;font-weight:900;color:#39a9ff}
+.logo span{color:white}
+main{
+  max-width:460px;
+  margin:45px auto;
+  padding:20px;
+}
+h1{font-size:34px;margin-bottom:10px}
+.subtitle{color:#9aabc2;margin-bottom:28px;line-height:1.5}
+.panel{
+  background:#101a2b;
+  border:1px solid #203653;
+  border-radius:18px;
+  padding:24px;
+}
+input{
+  width:100%;
+  padding:14px;
+  margin:8px 0;
+  border-radius:9px;
+  border:1px solid #30435e;
+  background:#08111f;
+  color:white;
+  font-size:15px;
+}
+button{
+  width:100%;
+  padding:14px;
+  margin-top:12px;
+  border:0;
+  border-radius:9px;
+  background:#1689e8;
+  color:white;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+}
+button:disabled{opacity:.5}
+.switch{
+  background:transparent;
+  border:1px solid #1689e8;
+}
+#message{
+  margin-top:15px;
+  color:#65bdff;
+  line-height:1.5;
+  overflow-wrap:anywhere;
+}
+#account{display:none}
+footer{
+  text-align:center;
+  color:#71829b;
+  padding:30px 15px;
+  font-size:13px;
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="logo">ZONE <span>X</span></div>
+  <div style="color:#8fa9c7;font-size:12px">YOUR WORLD</div>
+</header>
+
+<main>
+  <section id="auth">
+    <h1>Your world.<br>Your people. Your zone.</h1>
+    <p class="subtitle">
+      Connect with people, share your moments and discover your world.
+    </p>
+
+    <div class="panel">
+      <h2 id="formTitle">Create your account</h2>
+
+      <div id="signupFields">
+        <input id="fullName" placeholder="Full name" autocomplete="name">
+        <input id="username" placeholder="Username" autocomplete="username">
+      </div>
+
+      <input id="email" type="email" placeholder="Email address" autocomplete="email">
+      <input id="password" type="password" placeholder="Password" autocomplete="current-password">
+
+      <div id="confirmField">
+        <input id="confirmPassword" type="password" placeholder="Confirm password">
+      </div>
+
+      <button id="submitButton" onclick="submitForm()">Create account</button>
+      <button class="switch" id="switchButton" onclick="switchMode()">Already have an account? Log in</button>
+
+      <p id="message" role="status"></p>
+    </div>
+  </section>
+
+  <section id="account" class="panel">
+    <h1>Welcome to ZONE X</h1>
+    <p class="subtitle" id="welcomeText"></p>
+    <p>Your account is connected.</p>
+    <button onclick="logout()">Log out</button>
+    <p id="accountMessage"></p>
+  </section>
+</main>
+
+<footer>ZONE X © 2026 — Your world. Your people. Your zone.</footer>
+
+<script>
+const SUPABASE_URL = 'https://cgpdynonyvharrwomnxh.supabase.co';
+
+const SUPABASE_KEY = 'sb_publishable_fBcAIPiNoya-y9Aguou-nQ_aqTgsP-u';
+
+const REDIRECT_URL = 'https://robertwachira428-collab.github.io/Zone-X-/';
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+let isSignup = true;
+
+function showMessage(text){
+  document.getElementById('message').textContent = text;
+}
+
+function switchMode(){
+  isSignup = !isSignup;
+
+  document.getElementById('formTitle').textContent =
+    isSignup ? 'Create your account' : 'Welcome back';
+
+  document.getElementById('signupFields').style.display =
+    isSignup ? 'block' : 'none';
+
+  document.getElementById('confirmField').style.display =
+    isSignup ? 'block' : 'none';
+
+  document.getElementById('submitButton').textContent =
+    isSignup ? 'Create account' : 'Log in';
+
+  document.getElementById('switchButton').textContent =
+    isSignup ? 'Already have an account? Log in' : 'Create a new account';
+
+  showMessage('');
+}
+
+async function submitForm(){
+  const button = document.getElementById('submitButton');
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+
+  if(!email || !password){
+    showMessage('Please enter your email and password.');
+    return;
+  }
+
+  if(password.length < 6){
+    showMessage('Password must have at least 6 characters.');
+    return;
+  }
+
+  button.disabled = true;
+  showMessage('Please wait...');
+
+  try{
+    if(isSignup){
+      const fullName = document.getElementById('fullName').value.trim();
+      const username = document.getElementById('username').value.trim();
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if(!fullName || !username){
+        showMessage('Enter your full name and username.');
+        return;
+      }
+
+      if(password !== confirmPassword){
+        showMessage('Your passwords do not match.');
+        return;
+      }
+
+      const {data,error} = await supabaseClient.auth.signUp({
+        email: email,
+        password: password,
+        options:{
+          emailRedirectTo: REDIRECT_URL,
+          data:{
+            full_name: fullName,
+            username: username
+          }
+        }
+      });
+
+      if(error) throw error;
+
+      if(data.session){
+        showMessage('Account created successfully!');
+        showAccount(data.user);
+      }else{
+        showMessage('Account created. Check your email for the confirmation link. If it does not arrive, check Supabase Auth settings and logs.');
+      }
+
+    }else{
+      const {data,error} = await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+
+      if(error) throw error;
+
+      showMessage('Login successful!');
+      showAccount(data.user);
+    }
+
+  }catch(error){
+    showMessage(error.message || 'Something went wrong.');
+  }finally{
+    button.disabled = false;
+  }
+}
+
+function showAccount(user){
+  document.getElementById('auth').style.display = 'none';
+  document.getElementById('account').style.display = 'block';
+
+  const name = user.user_metadata?.full_name || user.email || 'ZONE X member';
+
+  document.getElementById('welcomeText').textContent =
+    'Welcome, ' + name;
+}
+
+async function logout(){
+  const {error} = await supabaseClient.auth.signOut();
+
+  if(error){
+    document.getElementById('accountMessage').textContent = error.message;
+    return;
+  }
+
+  document.getElementById('account').style.display = 'none';
+  document.getElementById('auth').style.display = 'block';
+  showMessage('You have logged out.');
+}
+
+async function checkSession(){
+  const {data,error} = await supabaseClient.auth.getSession();
+
+  if(error){
+    showMessage('Could not check your session. Please log in.');
+    return;
+  }
+
+  if(data.session){
+    showAccount(data.session.user);
+  }
+}
+
+checkSession();
+</script>
+</body>
+</html>
