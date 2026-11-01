@@ -1,0 +1,206 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080a10">
+<title>ZONE X</title>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080a10;color:white;font-family:Arial,sans-serif}
+header{padding:22px;border-bottom:1px solid #273348}
+.logo{font-size:30px;font-weight:900;letter-spacing:2px}
+.logo span,.blue{color:#168cff}
+main{max-width:480px;margin:35px auto;padding:15px}
+.card{background:#111722;border:1px solid #273348;border-radius:18px;padding:25px;margin-bottom:20px}
+h1{font-size:32px}
+p{color:#aab3c4;line-height:1.6}
+input{width:100%;padding:15px;margin:8px 0;background:#080b12;color:white;border:1px solid #344057;border-radius:10px;font-size:16px}
+button{width:100%;padding:15px;border:0;border-radius:10px;background:#168cff;color:white;font-weight:bold;margin-top:12px;font-size:16px}
+.secondary{background:#222c3d}
+button:disabled{opacity:.5}
+#message{color:#8fc5ff;overflow-wrap:anywhere}
+footer{text-align:center;color:#778398;padding:25px}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="logo">ZONE <span>X</span></div>
+</header>
+
+<main>
+<div class="card">
+<h1>WELCOME TO <span class="blue">ZONE X</span></h1>
+<p>Your world. Your people. Your zone.</p>
+<p>A place to connect, share your moments and discover your world.</p>
+</div>
+
+<div class="card" id="account">
+<h2>Join the community</h2>
+<p>Create your account or log in to continue.</p>
+<button id="signupBtn">CREATE ACCOUNT</button>
+<button class="secondary" id="loginBtn">LOG IN</button>
+</div>
+
+<p id="message" role="status"></p>
+</main>
+
+<footer>ZONE X © 2026<br>Your world. Your people. Your zone.</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const db = window.supabase.createClient(
+'https://cgpdynonyvharrwomnxh.supabase.co',
+'sb_publishable_fBcAIPiNoya-y9Aguou-nQ_aqTgsP-u'
+);
+
+const account = document.getElementById('account');
+const message = document.getElementById('message');
+
+const REDIRECT_URL =
+'https://robertwachira428-collab.github.io/Zone-X-/';
+
+function say(text){
+message.textContent=text;
+}
+
+function home(){
+account.innerHTML=`
+<h2>Join the community</h2>
+<p>Create your account or log in to continue.</p>
+<button id="signupBtn">CREATE ACCOUNT</button>
+<button class="secondary" id="loginBtn">LOG IN</button>`;
+
+document.getElementById('signupBtn').onclick=signup;
+document.getElementById('loginBtn').onclick=login;
+say('');
+}
+
+function signup(){
+account.innerHTML=`
+<h2>Create your account</h2>
+<form id="signupForm">
+<input id="fullname" placeholder="Full name" required>
+<input id="username" placeholder="Username" minlength="3" required>
+<input id="email" type="email" placeholder="Email address" required>
+<input id="password" type="password" placeholder="Password (8+ characters)" minlength="8" required>
+<input id="confirm" type="password" placeholder="Confirm password" required>
+<button id="createBtn" type="submit">CREATE ACCOUNT</button>
+</form>
+<button class="secondary" id="backBtn">BACK</button>`;
+
+document.getElementById('backBtn').onclick=home;
+
+document.getElementById('signupForm').onsubmit=async function(e){
+e.preventDefault();
+
+const password=document.getElementById('password').value;
+const confirm=document.getElementById('confirm').value;
+
+if(password!==confirm){
+say('Passwords do not match.');
+return;
+}
+
+const btn=document.getElementById('createBtn');
+btn.disabled=true;
+btn.textContent='CREATING...';
+say('Creating account...');
+
+try{
+const {data,error}=await db.auth.signUp({
+email:document.getElementById('email').value.trim(),
+password:password,
+options:{
+data:{
+full_name:document.getElementById('fullname').value.trim(),
+username:document.getElementById('username').value.trim().toLowerCase()
+},
+emailRedirectTo:REDIRECT_URL
+}
+});
+
+if(error)throw error;
+
+say(data.session
+?'Account created successfully.'
+:'Account created. Check your email for verification.');
+
+}catch(error){
+say(error.message);
+}finally{
+btn.disabled=false;
+btn.textContent='CREATE ACCOUNT';
+}
+};
+}
+
+function login(){
+account.innerHTML=`
+<h2>Welcome back</h2>
+<form id="loginForm">
+<input id="loginEmail" type="email" placeholder="Email address" required>
+<input id="loginPassword" type="password" placeholder="Password" required>
+<button id="loginBtnSubmit" type="submit">LOG IN</button>
+</form>
+<button class="secondary" id="backBtn">BACK</button>`;
+
+document.getElementById('backBtn').onclick=home;
+
+document.getElementById('loginForm').onsubmit=async function(e){
+e.preventDefault();
+
+const btn=document.getElementById('loginBtnSubmit');
+btn.disabled=true;
+btn.textContent='LOGGING IN...';
+
+try{
+const {error}=await db.auth.signInWithPassword({
+email:document.getElementById('loginEmail').value.trim(),
+password:document.getElementById('loginPassword').value
+});
+
+if(error)throw error;
+
+showLoggedIn();
+say('Login successful.');
+
+}catch(error){
+say(error.message);
+}finally{
+btn.disabled=false;
+btn.textContent='LOG IN';
+}
+};
+}
+
+function showLoggedIn(){
+account.innerHTML=`
+<h2>Welcome to ZONE X</h2>
+<p>You are logged in.</p>
+<button id="logoutBtn">LOG OUT</button>`;
+
+document.getElementById('logoutBtn').onclick=async function(){
+const {error}=await db.auth.signOut();
+if(error){say(error.message);return;}
+home();
+say('You have logged out.');
+};
+}
+
+document.getElementById('signupBtn').onclick=signup;
+document.getElementById('loginBtn').onclick=login;
+
+db.auth.getSession().then(({data,error})=>{
+if(error)say(error.message);
+else if(data.session)showLoggedIn();
+});
+</script>
+
+</body>
+</html>
