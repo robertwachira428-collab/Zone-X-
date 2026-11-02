@@ -1,360 +1,964 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#070b14">
-<title>ZONE X — Your world</title>
+<title>ZONE X — Your World</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-:root{--bg:#070b14;--panel:#101a2b;--panel2:#14243a;--line:#263750;--blue:#1689e8;--bright:#55b5ff;--muted:#9aabc2}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#fff;font:15px Arial,sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}header{height:64px;position:sticky;top:0;z-index:10;background:#080d18;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 15px}.brand{font-weight:900;font-size:24px;letter-spacing:1px}.brand b{color:var(--bright)}.iconbtn{border:0;background:transparent;color:white;font-size:23px;padding:8px}.wrap{max-width:720px;margin:auto;padding:14px 14px 100px}#auth{max-width:440px;margin:45px auto;padding:18px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}.muted,small{color:var(--muted)}h1{font-size:30px;margin:8px 0}h2{font-size:22px;margin:8px 0 15px}h3{font-size:17px;margin:5px 0 12px}input,textarea,select{width:100%;background:#08111f;border:1px solid #30435e;border-radius:10px;color:white;padding:13px;margin:6px 0}textarea{resize:vertical;min-height:78px}.btn{border:0;border-radius:10px;padding:12px 15px;background:var(--blue);color:white;font-weight:700}.btn.secondary{background:#20334d;border:1px solid #36516f}.btn.ghost{background:transparent;border:1px solid #36516f}.btn.full{width:100%;margin-top:8px}.row{display:flex;align-items:center;gap:10px}.between{justify-content:space-between}.grow{flex:1;min-width:0}.hidden{display:none!important}.status{color:var(--bright);font-size:13px;min-height:18px;margin-top:8px}.welcome{position:fixed;top:76px;left:50%;transform:translate(-50%,-12px);opacity:0;pointer-events:none;z-index:30;background:#142a43;border:1px solid #328eff;padding:14px 18px;border-radius:14px;width:calc(100% - 32px);max-width:420px;text-align:center;transition:.3s}.welcome.show{opacity:1;transform:translate(-50%,0)}
-.stories{display:flex;gap:14px;overflow-x:auto;padding:10px 0 17px;border-bottom:1px solid var(--line);scrollbar-width:none}.stories::-webkit-scrollbar{display:none}.story{flex:0 0 68px;text-align:center;font-size:11px;color:#c1d0e2}.story-ring{width:62px;height:62px;border-radius:50%;border:2px solid var(--bright);background:#172943;display:grid;place-items:center;margin:0 auto 6px;font-size:23px}.story.add .story-ring{border-style:dashed}.feedpost{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:14px;margin:14px 0}.avatar{width:76px;height:76px;flex:0 0 76px;border-radius:50%;background:#203d5b;border:2px solid #328eff;display:grid;place-items:center;overflow:hidden;color:#8bcaff;font-size:28px}.avatar img{width:100%;height:100%;object-fit:cover}.smallavatar{width:40px;height:40px;flex-basis:40px;font-size:18px}.posttext{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5;margin:12px 0}.postactions{display:flex;gap:18px;flex-wrap:wrap}.postactions button{background:none;border:0;color:#c1d0e2;padding:7px 0}.menu-pop{position:absolute;top:58px;left:12px;width:min(290px,calc(100vw - 24px));background:#101a2b;border:1px solid #36516f;border-radius:15px;padding:10px;box-shadow:0 15px 40px #000b;z-index:25}.menu-pop button{display:flex;width:100%;gap:12px;align-items:center;text-align:left;background:transparent;color:white;border:0;padding:13px;border-radius:9px}.menu-pop button:hover{background:#20334d}.menu-pop span{font-size:20px;width:25px;color:var(--bright)}.profile-topline{font-weight:700;color:var(--bright);margin:4px 0 14px}.profile-stats{display:flex;justify-content:space-around;gap:6px;flex:1}.stat{text-align:center}.stat strong{display:block;font-size:18px}.stat span{font-size:12px;color:var(--muted)}.bio{margin:13px 0;line-height:1.45;overflow-wrap:anywhere}.profiletabs{display:flex;justify-content:space-around;border-top:1px solid var(--line);padding:15px 0;color:#c3d3e7}.gridposts{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}.gridposts .tile{background:#14243a;aspect-ratio:1;display:grid;place-items:center;padding:8px;text-align:center;overflow:hidden;font-size:12px}.bottomnav{position:fixed;bottom:0;left:0;right:0;z-index:15;background:#0d1626;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:9px 2px calc(9px + env(safe-area-inset-bottom))}.bottomnav button{background:none;border:0;color:#a8bad0;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:4px}.bottomnav button span{font-size:21px}.bottomnav button.active{color:var(--bright)}.section{display:none}.section.active{display:block}.empty{text-align:center;color:var(--muted);padding:30px 10px}.toast{position:fixed;bottom:82px;left:50%;transform:translateX(-50%);background:#20334d;padding:11px 16px;border-radius:10px;z-index:40;display:none;max-width:90%;text-align:center}.toast.show{display:block}.profile-cover{height:100px;border-radius:12px;background:linear-gradient(120deg,#10213a,#14538b,#10213a);margin-bottom:-4px}.pill{display:inline-block;background:#20334d;border-radius:30px;padding:5px 9px;color:#b8dfff;font-size:11px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#070b14;color:#fff;font-family:Arial,sans-serif;min-height:100vh}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+header{height:65px;padding:0 18px;border-bottom:1px solid #1c2940;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#070b14;z-index:5}
+.logo{font-size:25px;font-weight:900;color:#39a9ff}
+.logo span{color:white}
+.header-actions{display:flex;gap:18px}
+.header-actions button{background:none;color:white;border:0;font-size:21px}
+#auth{max-width:440px;margin:55px auto;padding:20px}
+h1{font-size:30px;margin-bottom:12px}
+.subtitle{color:#9aabc2;line-height:1.5;margin-bottom:22px}
+.panel{background:#101a2b;border:1px solid #203653;border-radius:16px;padding:18px;margin-bottom:16px}
+input,textarea{width:100%;padding:13px;margin:7px 0;border-radius:9px;border:1px solid #30435e;background:#08111f;color:white}
+textarea{resize:vertical}
+button.primary{background:#1689e8;color:white;border:0;padding:13px;border-radius:9px;font-weight:bold;width:100%;margin-top:10px}
+button.secondary{background:transparent;border:1px solid #1689e8;color:#fff;padding:12px;border-radius:9px;width:100%;margin-top:10px}
+#message,#profileMessage{color:#65bdff;margin-top:12px;overflow-wrap:anywhere}
+#app{display:none;max-width:680px;margin:auto;padding:15px 14px 95px}
+.section{display:none}
+.section.active{display:block}
+.section-title{font-size:22px;margin:12px 0 18px}
+.tabs{display:flex;gap:18px;border-bottom:1px solid #203653;margin-bottom:16px}
+.tabs button{background:none;color:#9aabc2;border:0;padding:12px 2px}
+.tabs button.active{color:#42aaff;border-bottom:2px solid #42aaff}
+.stories{display:flex;gap:15px;overflow-x:auto;padding:10px 0 18px}
+.story{flex:0 0 65px;text-align:center;font-size:11px;color:#b9c9dc}
+.story-circle{height:59px;width:59px;border-radius:50%;border:2px solid #328eff;background:#172943;display:grid;place-items:center;font-size:23px;margin:auto auto 6px}
+.story.add .story-circle{border-color:#52647b}
+.post-box textarea{min-height:75px}
+.post{background:#101a2b;border:1px solid #203653;border-radius:15px;padding:15px;margin:14px 0}
+.post-head{display:flex;align-items:center;gap:10px;margin-bottom:13px}
+.avatar{height:38px;width:38px;border-radius:50%;background:#173d63;display:grid;place-items:center;color:#65bdff;font-weight:bold}
+.post-time{color:#8498b3;font-size:11px;margin-top:4px}
+.post-content{line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.post-actions{display:flex;gap:18px;margin-top:15px;align-items:center;flex-wrap:wrap}
+.post-actions button{background:none;border:0;color:#b8c9df;font-size:14px}
+.commentbox{margin-top:10px;padding-top:10px;border-top:1px solid #203653}
+.commentform{display:flex;gap:8px;align-items:center}
+.commentform input{margin:0;min-width:0}
+.commentform button{white-space:nowrap}
+.commentitem{padding:9px 0;border-bottom:1px solid #203653;overflow-wrap:anywhere}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#0d1626;border-top:1px solid #203653;display:flex;justify-content:space-around;padding:10px 3px calc(10px + env(safe-area-inset-bottom));z-index:10}
+.nav button{background:none;border:0;color:#94a9c4;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:5px}
+.nav button span{font-size:21px}
+.nav button.active{color:#42aaff}
+.profile-avatar{width:80px;height:80px;border-radius:50%;background:#173d63;display:grid;place-items:center;font-size:32px;margin-bottom:12px}
+.muted{color:#91a5bf;font-size:13px;line-height:1.5}
+.empty{color:#91a5bf;text-align:center;padding:35px 10px}
+footer{text-align:center;color:#71829b;padding:25px;font-size:12px}
 </style>
 </head>
+
 <body>
-<div class="welcome" id="welcome"></div>
+
 <header>
-  <button class="iconbtn" aria-label="Create menu" onclick="toggleCreateMenu()">＋</button>
-  <div class="brand">ZONE <b>X</b></div>
-  <div class="row">
-    <button class="iconbtn" onclick="navigate('notifications')" aria-label="Notifications">♡</button>
-    <button class="iconbtn" onclick="navigate('messages')" aria-label="Messages">➤</button>
-  </div>
-  <div id="createMenu" class="menu-pop hidden">
-    <button onclick="creationAction('live')"><span>◉</span>Go Live</button>
-    <button onclick="creationAction('story')"><span>◌</span>Add Story</button>
-    <button onclick="creationAction('post')"><span>▧</span>Add Post</button>
-    <button onclick="creationAction('reel')"><span>▶</span>Create Reel</button>
-    <button onclick="creationAction('group')"><span>♧</span>Create Group</button>
-    <button onclick="creationAction('schedule')"><span>◷</span>Schedule Post</button>
+  <div class="logo">ZONE <span>X</span></div>
+  <div class="header-actions">
+    <button onclick="openPage('notifications')" aria-label="Notifications">♡</button>
+    <button onclick="openPage('messages')" aria-label="Messages">➤</button>
   </div>
 </header>
 
 <section id="auth">
   <h1>Your world.<br>Your people. Your zone.</h1>
-  <p class="muted">Connect, share and discover your world.</p>
+  <p class="subtitle">Connect with people, share your moments and discover your world.</p>
+
   <div class="panel">
-    <h2 id="authTitle">Create your account</h2>
+    <h2 id="formTitle">Create your account</h2>
+
     <div id="signupFields">
-      <input id="fullName" placeholder="Full name" autocomplete="name">
-      <input id="username" placeholder="Username" autocomplete="username">
+      <input id="fullName" placeholder="Full name">
+      <input id="username" placeholder="Username">
     </div>
-    <input id="email" type="email" placeholder="Email address" autocomplete="email">
-    <input id="password" type="password" placeholder="Password" autocomplete="current-password">
-    <input id="confirmPassword" type="password" placeholder="Confirm password">
-    <button class="btn full" id="authSubmit" onclick="submitAuth()">Create account</button>
-    <button class="btn secondary full" id="authSwitch" onclick="switchAuth()">Already have an account? Log in</button>
-    <button class="btn ghost full hidden" id="forgotButton" onclick="forgotPassword()">Forgot password?</button>
-    <p class="status" id="authStatus"></p>
+
+    <input id="email" type="email" placeholder="Email address">
+    <input id="password" type="password" placeholder="Password">
+
+    <div id="confirmField">
+      <input id="confirmPassword" type="password" placeholder="Confirm password">
+    </div>
+
+    <button class="primary" id="submitButton" onclick="submitForm()">Create account</button>
+    <button class="secondary" id="switchButton" onclick="switchMode()">Already have an account? Log in</button>
+    <button class="secondary" id="forgotButton" onclick="forgotPassword()" style="display:none">Forgot password?</button>
+    <p id="message" role="status"></p>
   </div>
 </section>
 
-<main id="app" class="wrap hidden">
+<main id="app">
+
   <section id="home" class="section active">
+    <h2 class="section-title">Home</h2>
+
     <div class="stories">
-      <div class="story add" onclick="creationAction('story')"><div class="story-ring">＋</div>Your story</div>
-      <div class="story"><div class="story-ring">👤</div>Discover</div>
-      <div class="story"><div class="story-ring">👤</div>Friends</div>
-      <div class="story"><div class="story-ring">👤</div>People</div>
+      <div class="story add" onclick="openPage('create')">
+        <div class="story-circle">＋</div>
+        Your story
+      </div>
+      <div class="story"><div class="story-circle">👤</div>Stories</div>
+      <div class="story"><div class="story-circle">👤</div>Friends</div>
+      <div class="story"><div class="story-circle">👤</div>People</div>
+      <div class="story"><div class="story-circle">👤</div>Discover</div>
     </div>
-    <div class="panel">
-      <div class="row"><div class="avatar smallavatar">Z</div><div class="grow"><textarea id="homePost" placeholder="What's happening in your zone?" maxlength="3000"></textarea></div></div>
-      <div class="row between"><small>Share a moment with your zone</small><button class="btn" onclick="publishPost('homePost','homeStatus')">Post</button></div>
-      <p class="status" id="homeStatus"></p>
+
+    <div class="tabs">
+      <button id="forYouTab" class="active" onclick="selectFeed('all')">For You</button>
+      <button id="followingTab" onclick="selectFeed('following')">Following</button>
     </div>
-    <div id="feed"><p class="empty">Your zone's posts will appear here.</p></div>
+
+    <div class="panel post-box">
+      <strong>Create a post</strong>
+      <textarea id="postContent" maxlength="3000" placeholder="What's happening in your zone?"></textarea>
+      <button class="primary" onclick="createPost()">Publish Post</button>
+      <p id="postMessage" class="muted"></p>
+    </div>
+
+    <div id="postsList">
+      <p class="empty">Your ZONE X feed is loading...</p>
+    </div>
   </section>
 
   <section id="explore" class="section">
-    <h2>Explore</h2>
-    <div class="panel"><input id="searchBox" placeholder="Search people and posts"><p class="muted">Search and discovery will be connected when the search system is added.</p></div>
-  </section>
-
-  <section id="reels" class="section">
-    <h2>Reels</h2><div class="panel"><p class="empty">Short videos will appear here after video storage and playback are configured.</p></div>
-  </section>
-
-  <section id="messages" class="section">
-    <h2>Messages</h2><div class="panel"><p class="empty">Private and group conversations will appear here after messaging is built.</p></div>
-  </section>
-
-  <section id="notifications" class="section">
-    <h2>Notifications</h2><div class="panel"><p class="empty">Likes, comments, follows and alerts will appear here after notifications are connected.</p></div>
-  </section>
-
-  <section id="profile" class="section">
-    <div class="profile-topline" id="topUsername">@username</div>
-    <div class="row">
-      <div class="avatar" id="profileAvatar">👤</div>
-      <div class="profile-stats">
-        <div class="stat"><strong id="postCount">0</strong><span>Posts</span></div>
-        <div class="stat"><strong id="followerCount">0</strong><span>Followers</span></div>
-        <div class="stat"><strong id="followingCount">0</strong><span>Following</span></div>
-      </div>
-    </div>
-    <div class="bio">
-      <strong id="profileNickname">Your nickname</strong>
-      <div id="profileBio" class="muted">Your bio appears here.</div>
-    </div>
-    <div class="row">
-      <button class="btn grow" onclick="openEditProfile()">Edit Profile</button>
-      <button class="btn secondary grow" onclick="shareProfile()">Share Profile</button>
-    </div>
-    <div class="profiletabs"><span>▦ Posts</span><span>▶ Reels</span><span>▣ Saved</span><span>♙ Tagged</span></div>
-    <div id="myPosts" class="gridposts"></div>
-  </section>
-
-  <section id="editProfile" class="section">
-    <h2>Edit Profile</h2>
+    <h2 class="section-title">Explore</h2>
     <div class="panel">
-      <label>Profile picture URL (optional)</label><input id="editAvatar" placeholder="Image URL (upload feature comes later)">
-      <label>Username</label><input id="editUsername" maxlength="24" placeholder="username">
-      <label>Nickname / display name</label><input id="editNickname" maxlength="40" placeholder="Nickname">
-      <label>Bio</label><textarea id="editBio" maxlength="160" placeholder="Tell people about yourself"></textarea>
-      <label>Website or social link</label><input id="editWebsite" placeholder="https://...">
-      <label>Account privacy</label><select id="editPrivate"><option value="false">Public account</option><option value="true">Private account</option></select>
-      <button class="btn full" onclick="saveProfile()">Save changes</button>
-      <p class="status" id="profileStatus"></p>
-      <button class="btn secondary full" onclick="navigate('profile')">Cancel</button>
+      <input id="searchInput" placeholder="Search ZONE X">
+      <p class="muted">Search for people, usernames and topics. Search results will be connected in a later update.</p>
     </div>
   </section>
 
   <section id="create" class="section">
-    <h2>Create Post</h2>
+    <h2 class="section-title">Create</h2>
     <div class="panel">
-      <textarea id="createPostText" maxlength="3000" placeholder="Write a caption..."></textarea>
-      <button class="btn full" onclick="publishPost('createPostText','createStatus')">Publish Post</button>
-      <p class="status" id="createStatus"></p>
-      <p class="muted">Photo and video uploads will be enabled after setting up secure media storage.</p>
+      <h3>Share with your zone</h3>
+      <textarea id="createContent" maxlength="3000" placeholder="Write something..."></textarea>
+      <button class="primary" onclick="publishFromCreate()">Publish Post</button>
+      <p id="createMessage" class="muted"></p>
+    </div>
+    <p class="muted">Photo and video uploads will be added after media storage is configured.</p>
+  </section>
+
+  <section id="notifications" class="section">
+    <h2 class="section-title">Notifications</h2>
+    <div class="panel">
+      <p class="empty">Your notifications will appear here when the notification system is connected.</p>
     </div>
   </section>
 
-  <section id="settings" class="section">
-    <h2>Settings</h2>
+  <section id="messages" class="section">
+    <h2 class="section-title">Messages</h2>
     <div class="panel">
-      <p>Account privacy, security, blocked users, notifications, data download and account deletion are planned settings.</p>
-      <button class="btn secondary full" onclick="logout()">Log out</button>
+      <p class="empty">Your private and group conversations will appear here after messaging is built.</p>
     </div>
   </section>
+
+  <section id="profile" class="section">
+    <h2 class="section-title">My Profile</h2>
+    <div class="panel">
+      <div class="profile-avatar">👤</div>
+      <h2 id="profileName">ZONE X Member</h2>
+      <p id="profileUsername" class="muted">@username</p>
+      <p id="profileBio" style="margin-top:12px"></p>
+      <p class="muted" style="margin-top:15px">Posts · Followers · Following</p>
+      <button class="secondary" onclick="openPage('editProfile')">Edit Profile</button>
+      <button class="secondary" onclick="logout()">Log out</button>
+    </div>
+  </section>
+
+  <section id="editProfile" class="section">
+    <h2 class="section-title">Edit Profile</h2>
+    <div class="panel">
+      <label>Display name</label>
+      <input id="zx-display" maxlength="40" placeholder="Your display name">
+      <label>Bio</label>
+      <textarea id="zx-bio" maxlength="160" rows="3" placeholder="Tell people about yourself"></textarea>
+      <button class="primary" id="saveProfileButton" onclick="saveProfile()">Save Profile</button>
+      <p id="profileMessage"></p>
+      <button class="secondary" onclick="openPage('profile')">Back to Profile</button>
+    </div>
+  </section>
+
+  <section id="reels" class="section">
+    <h2 class="section-title">Reels</h2>
+    <div class="panel">
+      <p class="empty">Short videos and video recommendations will appear here after video storage and playback are connected.</p>
+    </div>
+  </section>
+
 </main>
 
-<nav class="bottomnav hidden" id="bottomNav">
-  <button class="active" data-page="home" onclick="navigate('home')"><span>⌂</span>Home</button>
-  <button data-page="explore" onclick="navigate('explore')"><span>⌕</span>Explore</button>
-  <button data-page="reels" onclick="navigate('reels')"><span>▶</span>Reels</button>
-  <button data-page="messages" onclick="navigate('messages')"><span>➤</span>Messages</button>
-  <button data-page="profile" onclick="navigate('profile')"><span>●</span>Profile</button>
+<nav class="nav" id="bottomNav" style="display:none">
+  <button class="active" data-page="home" onclick="openPage('home')"><span>⌂</span>Home</button>
+  <button data-page="explore" onclick="openPage('explore')"><span>⌕</span>Explore</button>
+  <button data-page="create" onclick="openPage('create')"><span>＋</span>Create</button>
+  <button data-page="reels" onclick="openPage('reels')"><span>▶</span>Reels</button>
+  <button data-page="profile" onclick="openPage('profile')"><span>●</span>Profile</button>
 </nav>
-<div class="toast" id="toast"></div>
+
+<footer>ZONE X © 2026 — Your world. Your people. Your zone.</footer>
 
 <script>
-/* Replace these two values locally with your own Supabase project URL
-   and publishable key. Never put a secret/service_role key in this file. */
-const SUPABASE_URL = "https://cgpdynonyvharrwomnxh.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_fBcAIPiNoya-y9Aguou-nQ_aqTgsP-u";
-const SITE_URL = "https://robertwachira428-collab.github.io/Zone-X-/";
+const SUPABASE_URL = 'https://cgpdynonyvharrwomnxh.supabase.co';
 
-let client = null, currentUser = null, signupMode = true;
-let currentProfile = null;
+// Replace with your own Supabase publishable key.
+const SUPABASE_KEY = 'sb_publishable_fBcAIPiNoya-y9Aguou-nQ_aqTgsP-u';
 
-function el(id){return document.getElementById(id)}
-function say(id,text){el(id).textContent=text}
-function toast(text){el('toast').textContent=text;el('toast').classList.add('show');setTimeout(()=>el('toast').classList.remove('show'),2600)}
-function escapeHTML(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function safeImage(url){try{const u=new URL(url);return ['https:','http:'].includes(u.protocol)?u.href:''}catch{return ''}}
+const REDIRECT_URL = 'https://robertwachira428-collab.github.io/Zone-X-/';
 
-function initClient(){
-  if(!window.supabase){say('authStatus','Supabase library did not load. Check your internet connection.');return false}
-  if(!SUPABASE_URL.startsWith('https://') ||
-     SUPABASE_PUBLISHABLE_KEY.includes('PASTE_') ||
-     SUPABASE_PUBLISHABLE_KEY.includes('YOUR_') ||
-     !SUPABASE_PUBLISHABLE_KEY.trim()){
-    say('authStatus','One setup step remains: add your Supabase publishable key in the marked line in index.html.');
-    return false;
-  }
-  client=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
-  return true;
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+let isSignup = true;
+let isRecovery = false;
+let currentUser = null;
+let currentFeed = 'all';
+
+const el = id => document.getElementById(id);
+
+function showMessage(text) {
+  el('message').textContent = text;
 }
-function switchAuth(){
-  signupMode=!signupMode;
-  el('authTitle').textContent=signupMode?'Create your account':'Welcome back';
-  el('signupFields').classList.toggle('hidden',!signupMode);
-  el('confirmPassword').classList.toggle('hidden',!signupMode);
-  el('authSubmit').textContent=signupMode?'Create account':'Log in';
-  el('authSwitch').textContent=signupMode?'Already have an account? Log in':'Create a new account';
-  el('forgotButton').classList.toggle('hidden',signupMode);
-  say('authStatus','');
-}
-async function submitAuth(){
-  if(!client)return;
-  const email=el('email').value.trim(),password=el('password').value;
-  if(!email||!password){say('authStatus','Enter your email and password.');return}
-  if(password.length<6){say('authStatus','Password must be at least 6 characters.');return}
-  el('authSubmit').disabled=true;say('authStatus','Please wait...');
-  try{
-    if(signupMode){
-      const full_name=el('fullName').value.trim(),username=el('username').value.trim();
-      if(!full_name||!username)throw Error('Enter your full name and username.');
-      if(!/^[a-zA-Z0-9_]{3,24}$/.test(username))throw Error('Username must be 3–24 letters, numbers or underscores.');
-      if(password!==el('confirmPassword').value)throw Error('Passwords do not match.');
-      const {data,error}=await client.auth.signUp({email,password,options:{emailRedirectTo:SITE_URL,data:{full_name,username}}});
-      if(error)throw error;
-      if(data.session)await enterApp(data.user,true);
-      else say('authStatus','Account created. Open the confirmation email and tap its link. Then return to this website and log in.');
-    }else{
-      const {data,error}=await client.auth.signInWithPassword({email,password});
-      if(error)throw error;
-      await enterApp(data.user,true);
-    }
-  }catch(e){say('authStatus',e.message||'Something went wrong.')}
-  finally{el('authSubmit').disabled=false}
-}
-async function forgotPassword(){
-  if(!client)return;
-  const email=el('email').value.trim();if(!email){say('authStatus','Enter your email first.');return}
-  const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:SITE_URL});
-  say('authStatus',error?error.message:'Password reset email requested. Check your inbox.');
-}
-let enteringApp = false;
-async function enterApp(user,showToast){
-  if(!user)return;
-  currentUser=user;
-  // Reveal the app immediately; profile/feed requests must never trap the user on login.
-  el('auth').classList.add('hidden');
-  el('app').classList.remove('hidden');
-  el('bottomNav').classList.remove('hidden');
-  navigate('home');
-  if(enteringApp)return;
-  enteringApp=true;
-  try{
-    await Promise.allSettled([loadProfile(),loadFeed()]);
-    await loadMyPosts();
-  }finally{enteringApp=false}
-  if(showToast){
-    el('welcome').textContent='Welcome to ZONE X, '+(currentProfile?.display_name||currentProfile?.full_name||'Member')+'!';
-    el('welcome').classList.add('show');
-    setTimeout(()=>el('welcome').classList.remove('show'),3000);
-  }
-}
-function navigate(page){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  if(el(page))el(page).classList.add('active');
-  document.querySelectorAll('.bottomnav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
-  el('createMenu').classList.add('hidden');
-  if(page==='home')loadFeed();if(page==='profile'){loadProfile();loadMyPosts()}
-  window.scrollTo(0,0);
-}
-function toggleCreateMenu(){el('createMenu').classList.toggle('hidden')}
-function creationAction(which){
-  el('createMenu').classList.add('hidden');
-  if(which==='post'){navigate('create');return}
-  const labels={live:'Live streaming will be added after live-video services are configured.',story:'Story publishing needs media storage and story expiry support.',reel:'Reels need video upload and playback support.',group:'Group creation will be connected with messaging.',schedule:'Scheduling will be added with creator tools.'};
-  toast(labels[which]||'Coming soon.');
-}
-async function loadProfile(){
-  if(!client||!currentUser)return;
-  const {data,error}=await client.from('profiles').select('*').eq('id',currentUser.id).maybeSingle();
-  if(error){console.warn(error);return}
-  currentProfile=data||{};
-  const username=currentProfile.username||currentUser.user_metadata?.username||'member';
-  el('topUsername').textContent='@'+username;
-  el('profileNickname').textContent=currentProfile.display_name||currentProfile.full_name||currentUser.user_metadata?.full_name||'Your nickname';
-  el('profileBio').textContent=currentProfile.bio||'Add a bio to tell people about yourself.';
-  const pic=safeImage(currentProfile.avatar_url);
-  el('profileAvatar').innerHTML=pic?'<img src="'+escapeHTML(pic)+'" alt="Profile picture">':'👤';
-  el('editUsername').value=currentProfile.username||username;
-  el('editNickname').value=currentProfile.display_name||currentProfile.full_name||'';
-  el('editBio').value=currentProfile.bio||'';
-  el('editAvatar').value=currentProfile.avatar_url||'';
-  el('editPrivate').value=String(!!currentProfile.is_private);
-  await loadFollowCounts();
-}
-async function loadFollowCounts(){
-  // Requires the follows table and policies in the setup SQL supplied separately.
-  if(!client||!currentUser)return;
-  try{
-    const [{count:followers},{count:following}]=await Promise.all([
-      client.from('follows').select('*',{count:'exact',head:true}).eq('following_id',currentUser.id),
-      client.from('follows').select('*',{count:'exact',head:true}).eq('follower_id',currentUser.id)
-    ]);
-    el('followerCount').textContent=followers??0;el('followingCount').textContent=following??0;
-  }catch(e){console.info('Follow counts require follows table setup.')}
-}
-async function saveProfile(){
-  if(!client||!currentUser)return;
-  const username=el('editUsername').value.trim(),display_name=el('editNickname').value.trim(),bio=el('editBio').value.trim();
-  if(!/^[a-zA-Z0-9_]{3,24}$/.test(username)){say('profileStatus','Username must be 3–24 letters, numbers or underscores.');return}
-  if(!display_name){say('profileStatus','Add a nickname/display name.');return}
-  const payload={username,display_name,bio,avatar_url:safeImage(el('editAvatar').value.trim())||null,is_private:el('editPrivate').value==='true'};
-  say('profileStatus','Saving...');
-  const {error}=await client.from('profiles').update(payload).eq('id',currentUser.id);
-  if(error){say('profileStatus',error.message);return}
-  say('profileStatus','Profile updated.');await loadProfile();navigate('profile');
-}
-function openEditProfile(){loadProfile();navigate('editProfile')}
-async function publishPost(inputId,statusId){
-  if(!client||!currentUser)return;
-  const content=el(inputId).value.trim();if(!content){say(statusId,'Write something first.');return}
-  say(statusId,'Publishing...');
-  const {error}=await client.from('posts').insert({user_id:currentUser.id,content});
-  if(error){say(statusId,error.message);return}
-  el(inputId).value='';say(statusId,'Post published!');await loadFeed();await loadMyPosts();
-}
-async function loadFeed(){
-  if(!client||!currentUser)return;
-  const feed=el('feed');feed.innerHTML='<p class="empty">Loading posts...</p>';
-  const {data,error}=await client.from('posts').select('id,user_id,content,created_at').order('created_at',{ascending:false}).limit(50);
-  if(error){feed.innerHTML='<p class="empty">Could not load posts: '+escapeHTML(error.message)+'</p>';return}
-  if(!data?.length){feed.innerHTML='<p class="empty">No posts yet. Be the first to share something!</p>';return}
-  el('postCount').textContent=data.filter(p=>p.user_id===currentUser.id).length;
-  feed.innerHTML=data.map(p=>`<article class="feedpost">
-    <div class="row"><div class="avatar smallavatar">Z</div><div class="grow"><strong>ZONE X Member</strong><div class="muted"><small>${escapeHTML(new Date(p.created_at).toLocaleString())}</small></div></div></div>
-    <div class="posttext">${escapeHTML(p.content)}</div>
-    <div class="postactions"><button onclick="toast('Likes will be connected after the likes table is set up.')">♡ Like</button><button onclick="toast('Comments are planned for the next database update.')">◯ Comment</button><button onclick="sharePost('${p.id}')">↗ Share</button><button onclick="saveDraftNotice()">▣ Save</button></div>
-    ${p.user_id===currentUser.id?`<div style="text-align:right;margin-top:8px"><button class="btn ghost" onclick="deletePost('${p.id}')">Delete post</button></div>`:''}
-  </article>`).join('');
-}
-async function loadMyPosts(){
-  if(!client||!currentUser)return;
-  const box=el('myPosts');box.innerHTML='';
-  const {data,error}=await client.from('posts').select('id,content,created_at').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(60);
-  if(error){box.innerHTML='<p class="empty">Posts could not load.</p>';return}
-  el('postCount').textContent=data?.length||0;
-  if(!data?.length){box.innerHTML='<p class="empty" style="grid-column:1/-1">Your posts will appear here.</p>';return}
-  box.innerHTML=data.map(p=>`<div class="tile" title="${escapeHTML(p.content)}">${escapeHTML(p.content.slice(0,90))}</div>`).join('');
-}
-async function deletePost(id){
-  if(!confirm('Delete this post?'))return;
-  const {error}=await client.from('posts').delete().eq('id',id);
-  if(error){toast(error.message);return}toast('Post deleted.');loadFeed();loadMyPosts();
-}
-function sharePost(id){const url=location.origin+location.pathname+'?post='+encodeURIComponent(id);if(navigator.share)navigator.share({title:'ZONE X post',url}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(url).then(()=>toast('Post link copied.')).catch(()=>toast(url));else toast(url)}
-function shareProfile(){const url=location.origin+location.pathname+'?user='+encodeURIComponent(currentProfile?.username||'');if(navigator.share)navigator.share({title:'ZONE X profile',url}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(url).then(()=>toast('Profile link copied.')).catch(()=>toast(url));else toast(url)}
-function saveDraftNotice(){toast('Draft and saved collections need their database tables.')}
-async function logout(){if(!client)return;const {error}=await client.auth.signOut();if(error){toast(error.message);return}currentUser=null;currentProfile=null;el('app').classList.add('hidden');el('bottomNav').classList.add('hidden');el('auth').classList.remove('hidden');say('authStatus','You are logged out.')}
-async function boot(){
-  if(!initClient())return;
-  // Listen first so a confirmation redirect or restored session opens the app.
-  client.auth.onAuthStateChange((event,session)=>{
-    if(session?.user){
-      // Defer async work out of the Supabase auth callback.
-      setTimeout(()=>enterApp(session.user,event==='SIGNED_IN'),0);
-    }else if(event==='SIGNED_OUT'){
-      currentUser=null;currentProfile=null;
-      el('app').classList.add('hidden');
-      el('bottomNav').classList.add('hidden');
-      el('auth').classList.remove('hidden');
-    }else if(event==='PASSWORD_RECOVERY'){
-      toast('Password recovery link opened. Password update form is not enabled yet.');
-    }
+
+function openPage(page) {
+  document.querySelectorAll('.section').forEach(section => {
+    section.classList.remove('active');
   });
-  const {data,error}=await client.auth.getSession();
-  if(error){say('authStatus',error.message);return}
-  if(data.session?.user)await enterApp(data.session.user,false);
+
+  const target = el(page);
+  if (target) target.classList.add('active');
+
+  document.querySelectorAll('.nav button').forEach(button => {
+    button.classList.toggle('active', button.dataset.page === page);
+  });
+
+  if (page === 'home') loadPosts();
+  if (page === 'profile') loadProfile();
+
+  window.scrollTo(0, 0);
 }
-document.addEventListener('click',e=>{if(!e.target.closest('#createMenu')&&!e.target.closest('header .iconbtn'))el('createMenu').classList.add('hidden')});
-boot();
+
+function showHome() {
+  el('auth').style.display = 'none';
+  el('app').style.display = 'block';
+  el('bottomNav').style.display = 'flex';
+  openPage('home');
+}
+
+function switchMode() {
+  isSignup = !isSignup;
+  isRecovery = false;
+
+  el('formTitle').textContent = isSignup ? 'Create your account' : 'Welcome back';
+  el('signupFields').style.display = isSignup ? 'block' : 'none';
+  el('confirmField').style.display = isSignup ? 'block' : 'none';
+  el('submitButton').textContent = isSignup ? 'Create account' : 'Log in';
+  el('switchButton').textContent = isSignup
+    ? 'Already have an account? Log in'
+    : 'Create a new account';
+
+  el('forgotButton').style.display = isSignup ? 'none' : 'block';
+  showMessage('');
+}
+
+async function submitForm() {
+  const button = el('submitButton');
+  const email = el('email').value.trim();
+  const password = el('password').value;
+
+  if (!password || (!isRecovery && !email)) {
+    showMessage('Please complete the required fields.');
+    return;
+  }
+
+  if (password.length < 6) {
+    showMessage('Password must have at least 6 characters.');
+    return;
+  }
+
+  button.disabled = true;
+  showMessage('Please wait...');
+
+  try {
+    if (isRecovery) {
+      const confirmPassword = el('confirmPassword').value;
+
+      if (password !== confirmPassword) {
+        throw new Error('Your passwords do not match.');
+      }
+
+      const { error } = await supabaseClient.auth.updateUser({ password });
+
+      if (error) throw error;
+
+      isRecovery = false;
+      isSignup = false;
+
+      el('confirmField').style.display = 'none';
+      el('switchButton').style.display = 'block';
+      el('forgotButton').style.display = 'none';
+      el('formTitle').textContent = 'Welcome back';
+      el('submitButton').textContent = 'Log in';
+
+      showMessage('Password updated successfully. You can now log in.');
+      return;
+    }
+
+    if (isSignup) {
+      const fullName = el('fullName').value.trim();
+      const username = el('username').value.trim();
+      const confirmPassword = el('confirmPassword').value;
+
+      if (!fullName || !username) {
+        throw new Error('Enter your full name and username.');
+      }
+
+      if (password !== confirmPassword) {
+        throw new Error('Your passwords do not match.');
+      }
+
+      if (!/^[a-zA-Z0-9_]{3,24}$/.test(username)) {
+        throw new Error('Username must be 3–24 letters, numbers or underscores.');
+      }
+
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: REDIRECT_URL,
+          data: {
+            full_name: fullName,
+            username
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.session && data.user) {
+        await showAccount(data.user);
+        showMessage('');
+      } else {
+        showMessage('Account created. Check your email to confirm your account.');
+      }
+
+    } else {
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      await showAccount(data.user);
+    }
+
+  } catch (error) {
+    showMessage(error.message || 'Something went wrong.');
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function forgotPassword() {
+  const email = el('email').value.trim();
+
+  if (!email) {
+    showMessage('Enter your account email first.');
+    return;
+  }
+
+  const button = el('forgotButton');
+  button.disabled = true;
+
+  try {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: REDIRECT_URL
+    });
+
+    if (error) throw error;
+
+    showMessage('Password reset requested. Check your email.');
+
+  } catch (error) {
+    showMessage(error.message || 'Could not request password reset.');
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function showAccount(user) {
+  currentUser = user;
+  await loadProfile();
+  showHome();
+}
+
+async function loadProfile() {
+  if (!currentUser) return;
+
+  const { data, error } = await supabaseClient
+    .from('profiles')
+    .select('username,full_name,display_name,bio')
+    .eq('id', currentUser.id)
+    .maybeSingle();
+
+  if (error || !data) {
+    el('profileName').textContent =
+      currentUser.user_metadata?.full_name || 'ZONE X Member';
+
+    el('profileUsername').textContent = '';
+    el('profileBio').textContent = '';
+    return;
+  }
+
+  el('profileName').textContent =
+    data.display_name || data.full_name || 'ZONE X Member';
+
+  el('profileUsername').textContent = '@' + data.username;
+  el('profileBio').textContent = data.bio || '';
+
+  el('zx-display').value = data.display_name || data.full_name || '';
+  el('zx-bio').value = data.bio || '';
+}
+
+async function saveProfile() {
+  if (!currentUser) return;
+
+  const button = el('saveProfileButton');
+  const display_name = el('zx-display').value.trim();
+  const bio = el('zx-bio').value.trim();
+  const message = el('profileMessage');
+
+  if (!display_name) {
+    message.textContent = 'Enter a display name.';
+    return;
+  }
+
+  button.disabled = true;
+  message.textContent = 'Saving...';
+
+  try {
+    const { error } = await supabaseClient
+      .from('profiles')
+      .update({ display_name, bio })
+      .eq('id', currentUser.id);
+
+    if (error) throw error;
+
+    message.textContent = 'Profile saved successfully!';
+    await loadProfile();
+
+  } catch (error) {
+    message.textContent = error.message || 'Could not save profile.';
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function createPost() {
+  const content = el('postContent').value.trim();
+  const message = el('postMessage');
+
+  if (!content) {
+    message.textContent = 'Write something first.';
+    return;
+  }
+
+  if (!currentUser) {
+    message.textContent = 'Please log in first.';
+    return;
+  }
+
+  message.textContent = 'Publishing...';
+
+  const { error } = await supabaseClient.from('posts').insert({
+    user_id: currentUser.id,
+    content
+  });
+
+  if (error) {
+    message.textContent = error.message;
+    return;
+  }
+
+  el('postContent').value = '';
+  message.textContent = 'Post published!';
+
+  await loadPosts();
+}
+
+async function publishFromCreate() {
+  const content = el('createContent').value.trim();
+  const message = el('createMessage');
+
+  if (!content) {
+    message.textContent = 'Write something first.';
+    return;
+  }
+
+  if (!currentUser) return;
+
+  message.textContent = 'Publishing...';
+
+  const { error } = await supabaseClient.from('posts').insert({
+    user_id: currentUser.id,
+    content
+  });
+
+  if (error) {
+    message.textContent = error.message;
+    return;
+  }
+
+  el('createContent').value = '';
+  message.textContent = 'Post published!';
+
+  openPage('home');
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  })[char]);
+}
 </script>
+
+<script>
+/* LOAD POSTS */
+
+async function loadPosts() {
+  const list = el('postsList');
+
+  if (!currentUser) return;
+
+  list.innerHTML = '<p class="empty">Loading posts...</p>';
+
+  let query = supabaseClient
+    .from('posts')
+    .select('id,user_id,content,created_at')
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  if (currentFeed === 'following') {
+    const { data: follows, error: followError } =
+      await supabaseClient
+        .from('follows')
+        .select('following_id')
+        .eq('follower_id', currentUser.id);
+
+    if (followError) {
+      list.innerHTML =
+        '<p class="empty">Could not load followed accounts: ' +
+        escapeHTML(followError.message) + '</p>';
+      return;
+    }
+
+    const followedIds = (follows || []).map(
+      item => item.following_id
+    );
+
+    if (followedIds.length === 0) {
+      list.innerHTML =
+        '<p class="empty">You are not following anyone yet.</p>';
+      return;
+    }
+
+    query = query.in('user_id', followedIds);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    list.innerHTML =
+      '<p class="empty">Could not load posts: ' +
+      escapeHTML(error.message) + '</p>';
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    list.innerHTML =
+      '<p class="empty">No posts to show yet.</p>';
+    return;
+  }
+
+  list.innerHTML = data.map(post => `
+    <article class="post">
+
+      <div class="post-head">
+        <div class="avatar">Z</div>
+        <div>
+          <strong>ZONE X Member</strong>
+          <div class="post-time">
+            ${escapeHTML(new Date(post.created_at).toLocaleString())}
+          </div>
+        </div>
+      </div>
+
+      <p class="post-content">${escapeHTML(post.content)}</p>
+
+      <div class="post-actions">
+        <button
+          type="button"
+          id="like-btn-${post.id}"
+          onclick="toggleLike('${post.id}')">
+          ♡ Like <span id="like-count-${post.id}">0</span>
+        </button>
+
+        <button
+          type="button"
+          onclick="toggleComments('${post.id}')">
+          ◯ Comments <span id="comment-count-${post.id}">0</span>
+        </button>
+
+        <button
+          type="button"
+          onclick="sharePost('${post.id}')">
+          ↗ Share
+        </button>
+      </div>
+
+      <div class="commentbox" id="comments-${post.id}" hidden>
+
+        <div class="commentform">
+          <input
+            id="comment-input-${post.id}"
+            maxlength="1000"
+            placeholder="Write a comment...">
+
+          <button
+            class="primary"
+            style="width:auto;margin:0"
+            onclick="sendComment('${post.id}')">
+            Send
+          </button>
+        </div>
+
+        <div id="comment-list-${post.id}"></div>
+
+      </div>
+
+      ${post.user_id === currentUser.id ? `
+        <div style="text-align:right;margin-top:8px">
+          <button
+            type="button"
+            class="secondary"
+            style="width:auto"
+            onclick="deletePost('${post.id}')">
+            Delete post
+          </button>
+        </div>
+      ` : ''}
+
+    </article>
+  `).join('');
+
+  await Promise.all(
+    data.map(post => refreshPostInteractions(post.id))
+  );
+}
+
+/* LIKE COUNTS AND LIKE STATUS */
+
+async function refreshPostInteractions(postId) {
+  if (!currentUser) return;
+
+  const [likesResult, commentsResult] = await Promise.all([
+
+    supabaseClient
+      .from('likes')
+      .select('user_id', { count: 'exact' })
+      .eq('post_id', postId),
+
+    supabaseClient
+      .from('comments')
+      .select('id', { count: 'exact' })
+      .eq('post_id', postId)
+
+  ]);
+
+  if (likesResult.error || commentsResult.error) {
+    console.warn(likesResult.error || commentsResult.error);
+    return;
+  }
+
+  const liked = (likesResult.data || []).some(
+    item => item.user_id === currentUser.id
+  );
+
+  const button = el('like-btn-' + postId);
+
+  if (button) {
+    button.innerHTML =
+      (liked ? '♥ Unlike ' : '♡ Like ') +
+      `<span id="like-count-${postId}">${likesResult.count || 0}</span>`;
+
+    button.style.color = liked ? '#55b5ff' : '#b8c9df';
+  }
+
+  const count = el('comment-count-' + postId);
+
+  if (count) {
+    count.textContent = commentsResult.count || 0;
+  }
+}
+
+/* LIKE AND UNLIKE */
+
+async function toggleLike(postId) {
+  if (!currentUser) return;
+
+  const { data: existing, error: readError } = await supabaseClient
+    .from('likes')
+    .select('id')
+    .eq('post_id', postId)
+    .eq('user_id', currentUser.id)
+    .maybeSingle();
+
+  if (readError) {
+    alert(readError.message);
+    return;
+  }
+
+  const result = existing
+    ? await supabaseClient
+        .from('likes')
+        .delete()
+        .eq('id', existing.id)
+    : await supabaseClient
+        .from('likes')
+        .insert({
+          post_id: postId,
+          user_id: currentUser.id
+        });
+
+  if (result.error) {
+    alert(result.error.message);
+    return;
+  }
+
+  await refreshPostInteractions(postId);
+}
+
+/* SHOW OR HIDE COMMENTS */
+
+async function toggleComments(postId) {
+  const box = el('comments-' + postId);
+
+  if (!box) return;
+
+  box.hidden = !box.hidden;
+
+  if (!box.hidden) {
+    await loadComments(postId);
+  }
+}
+
+/* LOAD COMMENTS */
+
+async function loadComments(postId) {
+  const list = el('comment-list-' + postId);
+
+  if (!list) return;
+
+  list.innerHTML = '<small>Loading comments...</small>';
+
+  const { data, error } = await supabaseClient
+    .from('comments')
+    .select('id,user_id,content,created_at')
+    .eq('post_id', postId)
+    .order('created_at', { ascending: true })
+    .limit(100);
+
+  if (error) {
+    list.innerHTML =
+      '<small>' + escapeHTML(error.message) + '</small>';
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    list.innerHTML =
+      '<small class="muted">No comments yet. Start the conversation.</small>';
+    return;
+  }
+
+  list.innerHTML = data.map(comment => `
+    <div class="commentitem">
+      <strong>
+        ${comment.user_id === currentUser.id ? 'You' : 'ZONE X member'}
+      </strong>
+
+      <div>${escapeHTML(comment.content)}</div>
+
+      <small class="muted">
+        ${escapeHTML(new Date(comment.created_at).toLocaleString())}
+      </small>
+    </div>
+  `).join('');
+}
+
+/* SEND COMMENT */
+
+async function sendComment(postId) {
+  if (!currentUser) return;
+
+  const input = el('comment-input-' + postId);
+  const content = input?.value.trim();
+
+  if (!content) {
+    alert('Write a comment first.');
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from('comments')
+    .insert({
+      post_id: postId,
+      user_id: currentUser.id,
+      content
+    });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  input.value = '';
+
+  await Promise.all([
+    loadComments(postId),
+    refreshPostInteractions(postId)
+  ]);
+}
+
+/* DELETE YOUR OWN POST */
+
+async function deletePost(postId) {
+  if (!currentUser || !confirm('Delete this post?')) return;
+
+  const { error } = await supabaseClient
+    .from('posts')
+    .delete()
+    .eq('id', postId)
+    .eq('user_id', currentUser.id);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  await loadPosts();
+}
+
+/* SHARE POST */
+
+async function sharePost(id) {
+  const url = REDIRECT_URL + '?post=' + encodeURIComponent(id);
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: 'ZONE X post',
+        url
+      });
+    } catch (error) {}
+  } else if (navigator.clipboard) {
+    try {
+      await navigator.clipboard.writeText(url);
+      alert('Post link copied.');
+    } catch (error) {
+      alert(url);
+    }
+  } else {
+    alert(url);
+  }
+}
+
+/* FEED TABS */
+
+function selectFeed(feed) {
+  currentFeed = feed;
+
+  el('forYouTab').classList.toggle('active', feed === 'all');
+  el('followingTab').classList.toggle('active', feed === 'following');
+
+  loadPosts();
+}
+
+/* LOG OUT */
+
+async function logout() {
+  const { error } = await supabaseClient.auth.signOut();
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  currentUser = null;
+
+  el('app').style.display = 'none';
+  el('bottomNav').style.display = 'none';
+  el('auth').style.display = 'block';
+
+  showMessage('You have logged out.');
+}
+
+/* CHECK LOGIN SESSION */
+
+async function checkSession() {
+  const { data, error } = await supabaseClient.auth.getSession();
+
+  if (error) {
+    showMessage('Could not check your session. Please log in.');
+    return;
+  }
+
+  if (data.session) {
+    await showAccount(data.session.user);
+  }
+}
+
+/* PASSWORD RECOVERY */
+
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  if (event === 'PASSWORD_RECOVERY') {
+    isRecovery = true;
+    isSignup = false;
+
+    el('auth').style.display = 'block';
+    el('app').style.display = 'none';
+    el('bottomNav').style.display = 'none';
+
+    el('formTitle').textContent = 'Set a new password';
+    el('signupFields').style.display = 'none';
+    el('confirmField').style.display = 'block';
+    el('switchButton').style.display = 'none';
+    el('forgotButton').style.display = 'none';
+    el('submitButton').textContent = 'Update password';
+
+    showMessage('Enter and confirm your new password.');
+  }
+});
+
+checkSession();
+</script>
+
 </body>
 </html>
